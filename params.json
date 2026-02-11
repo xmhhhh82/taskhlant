@@ -1,0 +1,40 @@
+{
+  "analysis_params": {
+    "reference_frame": 0,
+    "atom_selection": "protein",
+    "align": true,
+    "frame_start": 0,
+    "frame_stop": -1,
+    "frame_step": 1
+  },
+  "description": {
+    "reference_frame": "Reference frame index for RMSD calculation (0-based indexing, use -1 for last frame)",
+    "atom_selection": "MDTraj atom selection string (e.g., 'protein', 'backbone', 'name CA')",
+    "align": "Whether to align structures before calculating RMSD",
+    "frame_start": "Starting frame for analysis",
+    "frame_stop": "Ending frame for analysis (-1 means last frame)",
+    "frame_step": "Step size for frame selection"
+  },
+  "examples": {
+    "protein_backbone": {
+      "reference_frame": 0,
+      "atom_selection": "backbone",
+      "align": true
+    },
+    "ca_atoms_only": {
+      "reference_frame": 0,
+      "atom_selection": "name CA",
+      "align": true
+    },
+    "no_alignment": {
+      "reference_frame": 0,
+      "atom_selection": "protein",
+      "align": false
+    },
+    "last_frame_reference": {
+      "reference_frame": -1,
+      "atom_selection": "protein",
+      "align": true
+    }
+  }
+}
