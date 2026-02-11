@@ -14,7 +14,7 @@ def test_task_creation():
     task = Task("Buy groceries")
     assert task.title == "Buy groceries"
     assert task.description == ""
-    assert task.completed == False
+    assert not task.completed
 
 
 def test_task_with_description():
@@ -22,21 +22,21 @@ def test_task_with_description():
     task = Task("Buy groceries", "Milk, eggs, bread")
     assert task.title == "Buy groceries"
     assert task.description == "Milk, eggs, bread"
-    assert task.completed == False
+    assert not task.completed
 
 
 def test_mark_complete():
     """Test marking a task as complete"""
     task = Task("Buy groceries")
     task.mark_complete()
-    assert task.completed == True
+    assert task.completed
 
 
 def test_mark_incomplete():
     """Test marking a task as incomplete"""
     task = Task("Buy groceries", completed=True)
     task.mark_incomplete()
-    assert task.completed == False
+    assert not task.completed
 
 
 def test_task_string_representation():
