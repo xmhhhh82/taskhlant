@@ -1,45 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-RMSD Analysis Plugin for FastMDAnalysis
+RMSD分析插件
 
-Root-Mean-Square Deviation (RMSD) calculation relative to a reference frame.
-Supports both aligned RMSD (with Kabsch superposition) and no-fit RMSD.
-
-Outputs:
---------
-- rmsd.dat : (N, 1) array of RMSD values per frame (nm)
-- rmsd.png : line plot of RMSD vs frame
-
-Usage:
-------
-    python plot.py params.json
-
-Reference:
-----------
-Based on FastMDAnalysis (https://github.com/aai-research-lab/FastMDAnalysis)
+本模块用于计算分子动力学轨迹的均方根偏差(RMSD)，支持对齐和非对齐两种计算方式。
+主要功能:
+1. 读取多种格式的轨迹文件（PDB、DCD、XTC、TRR、NC等）
+2. 计算相对于参考帧的RMSD值
+3. 支持Kabsch对齐算法进行结构叠合
+4. 输出RMSD数据文件（.dat格式）
+5. 生成RMSD可视化图片（.png格式）
 """
 
-from __future__ import annotations
-
-import json
-import logging
 import os
 import sys
+import json
+import logging
 from pathlib import Path
 from typing import Dict, Optional, Any, Union, Tuple
 
 import numpy as np
-
 import matplotlib
-
-matplotlib.use('Agg')  # Non-interactive backend for server/headless environments
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 # Optional: MDTraj for real trajectory analysis
 try:
     import mdtraj as md
-
     MDTRAJ_AVAILABLE = True
 except ImportError:
     MDTRAJ_AVAILABLE = False
@@ -49,58 +36,25 @@ except ImportError:
 # Path Utilities (PyInstaller compatible)
 # =============================================================================
 
-def resource_path(relative_path: str) -> str:
+def resource_path(relative_path):
     """
-    Get absolute path to a resource.
+    获取资源文件的绝对路径
+
+    该函数用于处理打包后的可执行文件中的资源路径问题。
+    当程序被打包为可执行文件（如使用 PyInstaller）时，原资源文件会被解压到临时目录。
+    此时需要使用 sys._MEIPASS 路径来访问资源文件。
 
     Args:
-        relative_path (str): Relative resource path.
+        relative_path (str): 资源文件的相对路径
 
     Returns:
-        str: Absolute resource path.
+        str: 资源文件的绝对路径
     """
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
 
-# =============================================================================
-# Logging Configuration
-# =============================================================================
-
-def setup_logging(output_dir: str, level: str = "INFO") -> logging.Logger:
-    """
-    Configure logging to both console and file.
-
-    Parameters
-    ----------
-    output_dir : str
-        Output directory for log file.
-    level : str
-        Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
-
-    Returns
-    -------
-    logging.Logger
-        Configured logger instance.
-    """
-    os.makedirs(output_dir, exist_ok=True)
-    log_file = os.path.join(output_dir, "run.log")
-
-    root_logger = logging.getLogger()
-    for handler in list(root_logger.handlers):
-        root_logger.removeHandler(handler)
-
-    logging.basicConfig(
-        level=getattr(logging, level.upper(), logging.INFO),
-        format='%(asctime)s %(levelname)s %(message)s',
-        handlers=[
-            logging.FileHandler(log_file, encoding='utf-8', mode='w'),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-
-    return logging.getLogger("rmsd_analysis")
 
 
 # =============================================================================
@@ -116,26 +70,26 @@ class AnalysisError(Exception):
 # JSON Utilities
 # =============================================================================
 
-def load_json_config(file_path: Union[str, Path]) -> Dict[str, Any]:
+def load_json(file_path: str) -> dict:
     """
-    Load a JSON configuration file.
+    加载 JSON 文件并返回其内容
 
-    Parameters
-    ----------
-    file_path : str or Path
-        Path to JSON file.
+    Args:
+        file_path (str): JSON 文件的路径
 
-    Returns
-    -------
-    dict
-        Parsed configuration.
+    Returns:
+        dict: JSON 文件的内容
+
+    Raises:
+        FileNotFoundError: 当指定的文件不存在时抛出
     """
-    file_path = str(file_path)
     if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Configuration file not found: {file_path}")
+        raise FileNotFoundError(f"The file {file_path} does not exist.")
 
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+
+    return data
 
 
 # =============================================================================
@@ -607,18 +561,41 @@ class RMSDAnalysis:
 # Main Entry Point
 # =============================================================================
 
-def main(params_file_path: str) -> Dict[str, np.ndarray]:
+def main(params_file_path):
     """
-    Main entry point for the RMSD analysis plugin.
+    主函数：执行RMSD分析流程
+
+    该函数是整个程序的入口点，负责：
+    1. 从 JSON 文件加载参数（输入文件、输出目录、参考帧等）
+    2. 创建输出目录（如果不存在）
+    3. 配置日志系统，同时输出到文件和控制台
+    4. 读取轨迹坐标数据（支持多种格式或生成示例数据）
+    5. 初始化 RMSDAnalysis 类进行 RMSD 计算
+    6. 使用 Kabsch 算法进行结构对齐（可选）
+    7. 将 RMSD 数据保存为 .dat 文件
+    8. 使用 matplotlib 绘制 RMSD 图并保存为 PNG 图片
+
+    Args:
+        params_file_path (str): 参数配置文件的路径，通常为 params.json
     """
     try:
-        params = load_json_config(params_file_path)
-
+        params = load_json(params_file_path)
+        
         output_dir = params.get("output_dir", "output")
         os.makedirs(output_dir, exist_ok=True)
 
-        logger = setup_logging(output_dir=output_dir, level=params.get("log_level", "INFO"))
-        logger.info("params.json: %s", params)
+        log_file = os.path.join(output_dir, 'run.log')
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s %(levelname)s %(message)s',
+            handlers=[
+                logging.FileHandler(log_file, encoding='utf-8', mode='w'),
+                logging.StreamHandler(sys.stdout)
+            ]
+        )
+        
+        logger = logging.getLogger("rmsd_analysis")
+        logger.info(f"config.json: {params}")
 
         input_file = params.get("input_file")
         topology_file = params.get("topology_file")
@@ -653,7 +630,9 @@ def main(params_file_path: str) -> Dict[str, np.ndarray]:
         data_filename = params.get("data_filename", "rmsd")
         data_header = params.get("data_header", "rmsd_nm")
         data_format = params.get("data_format", "%.6f")
-        analysis.save_data(filename=data_filename, header=data_header, fmt=data_format)
+        data_path = analysis.save_data(filename=data_filename, header=data_header, fmt=data_format)
+        
+        logger.info(f"RMSD数据已保存为 {data_path}")
 
         plot_kwargs = {
             "title": params.get("plot_title"),
@@ -667,9 +646,11 @@ def main(params_file_path: str) -> Dict[str, np.ndarray]:
             "grid_alpha": float(params.get("plot_grid_alpha", 0.3)),
             "filename": params.get("plot_filename", "rmsd.png")
         }
-        analysis.plot(**plot_kwargs)
-
+        plot_path = analysis.plot(**plot_kwargs)
+        
+        logger.info(f"RMSD可视化已保存为 {plot_path}")
         logger.info("Analysis complete")
+        
         return results
 
     except Exception as e:
@@ -678,7 +659,15 @@ def main(params_file_path: str) -> Dict[str, np.ndarray]:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python plot.py params.json")
-        sys.exit(1)
-    main(sys.argv[1])
+    """
+    程序入口点
+
+    当程序直接运行（而非被导入为模块）时，执行以下操作：
+    1. 从命令行参数获取参数配置文件的路径
+    2. 调用 main 函数开始处理
+
+    使用方式：
+        python plot.py params.json
+    """
+    params_file_path = sys.argv[1]
+    main(params_file_path)
