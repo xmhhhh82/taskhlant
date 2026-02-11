@@ -282,7 +282,11 @@ def load_coords_from_file(
         raise AnalysisError("topology_file is required for trajectory formats")
 
     logger.info("Loading trajectory with mdtraj: %s", input_file)
-    traj = md.load(input_file, top=topology_file)
+    # For PDB files, don't pass topology if it's empty
+    if topology_file and topology_file.strip():
+        traj = md.load(input_file, top=topology_file)
+    else:
+        traj = md.load(input_file)
     return traj.xyz.astype(np.float64)
 
 

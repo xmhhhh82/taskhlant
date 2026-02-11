@@ -1,0 +1,10 @@
+2026-02-11 03:23:39,938 INFO config.json: {'input_file': '', 'topology_file': '', 'output_dir': './output', 'reference_frame': 0, 'align': 'True', 'data_filename': 'rmsd', 'plot_filename': 'rmsd.png', 'sample_frames': 100, 'sample_atoms': 50}
+2026-02-11 03:23:39,938 INFO No input_file provided; using generated sample data
+2026-02-11 03:23:39,945 INFO Initialized RMSD analysis: reference_frame=0, align=True, n_frames=100, n_atoms=50
+2026-02-11 03:23:39,945 INFO Starting RMSD calculation: ref=0, align=True, n_frames=100, n_atoms=50
+2026-02-11 03:23:39,953 INFO RMSD analysis complete: range [0.0000, 0.0764] nm, mean=0.0632 nm
+2026-02-11 03:23:39,953 INFO Data saved to ./output/rmsd.dat
+2026-02-11 03:23:39,953 INFO RMSD数据已保存为 ./output/rmsd.dat
+2026-02-11 03:23:40,297 INFO Plot saved to ./output/rmsd.png
+2026-02-11 03:23:40,297 INFO RMSD可视化已保存为 ./output/rmsd.png
+2026-02-11 03:23:40,297 INFO Analysis complete
