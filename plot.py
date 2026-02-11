@@ -599,7 +599,7 @@ def main(params_file_path):
         )
         
         logger = logging.getLogger("rmsd_analysis")
-        logger.info(f"config.json: {params}")
+        logger.info(f"params.json: {params}")
 
         input_file = params.get("input_file")
         topology_file = params.get("topology_file")
@@ -673,5 +673,8 @@ if __name__ == "__main__":
     使用方式：
         python plot.py params.json
     """
+    if len(sys.argv) < 2:
+        print("Usage: python plot.py params.json")
+        sys.exit(1)
     params_file_path = sys.argv[1]
     main(params_file_path)
