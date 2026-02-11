@@ -1,86 +1,77 @@
 {
   "title": "RMSD分析插件",
   "title_en": "RMSD Analysis Plugin",
-  "description": "计算轨迹与参考帧的RMSD，并输出数据与图片。",
-  "description_en": "Compute RMSD vs a reference frame and output data and plot.",
-  "version": "1.0.0",
-  "context": "输入轨迹文件(可选)与参数，输出目录内生成 rmsd.dat、rmsd.png、run.log。",
-  "context_en": "Provide optional trajectory input and parameters; outputs rmsd.dat, rmsd.png, and run.log in output_dir.",
+  "description": "计算轨迹与参考帧的RMSD，并输出数据与图片",
+  "description_en": "Compute RMSD vs a reference frame and output data and plot",
+  "version": "v1.0.0",
+  "context": "输入轨迹文件（可选）与参数，输出目录内生成 rmsd.dat、rmsd.png、run.log",
+  "context_en": "Provide optional trajectory input and parameters; outputs rmsd.dat, rmsd.png, and run.log in output_dir",
   "env": "Python",
   "outputType": "str",
   "params": [
     {
       "label": "输入轨迹文件",
-      "label_en": "Input trajectory file",
-      "description": "支持 .pdb/.dcd/.xtc/.trr/.nc/.netcdf/.npy/.npz",
-      "description_en": "Supports .pdb/.dcd/.xtc/.trr/.nc/.netcdf/.npy/.npz",
+      "label_en": "Input Trajectory File",
       "key": "input_file",
       "valueType": "file_selector",
-      "example_value": ""
+      "example_value": "",
+      "description": "支持 .pdb/.dcd/.xtc/.trr/.nc/.netcdf/.npy/.npz 格式",
+      "description_en": "Supports .pdb/.dcd/.xtc/.trr/.nc/.netcdf/.npy/.npz formats"
     },
     {
-      "label": "拓扑文件(可选)",
-      "label_en": "Topology file (optional)",
-      "description": "当输入为dcd/xtc等轨迹格式时需要",
-      "description_en": "Required for dcd/xtc-like trajectories",
+      "label": "拓扑文件",
+      "label_en": "Topology File",
       "key": "topology_file",
       "valueType": "file_selector",
-      "example_value": ""
+      "example_value": "",
+      "description": "当输入为 dcd/xtc 等轨迹格式时需要",
+      "description_en": "Required for dcd/xtc-like trajectories"
     },
     {
       "label": "输出目录",
-      "label_en": "Output directory",
-      "description": "结果输出目录",
-      "description_en": "Directory for output files",
+      "label_en": "Output Directory",
       "key": "output_dir",
       "valueType": "dir_selector",
-      "example_value": "output"
+      "example_value": "./output",
+      "description": "请选择结果输出目录",
+      "description_en": "Select the output directory for results"
     },
     {
       "label": "参考帧索引",
-      "label_en": "Reference frame index",
-      "description": "0为第一帧，-1为最后一帧",
-      "description_en": "0 for first frame, -1 for last frame",
+      "label_en": "Reference Frame Index",
       "key": "reference_frame",
       "valueType": "int",
-      "example_value": 0
+      "example_value": 0,
+      "description": "0为第一帧，-1为最后一帧",
+      "description_en": "0 for first frame, -1 for last frame"
     },
     {
       "label": "是否对齐",
       "label_en": "Alignment",
-      "description": "是否进行Kabsch对齐",
-      "description_en": "Whether to perform Kabsch alignment",
       "key": "align",
       "valueType": "customer_selector",
+      "options": ["True", "False"],
       "example_value": "True",
-      "options": ["True", "False"]
+      "description": "是否进行Kabsch对齐",
+      "description_en": "Whether to perform Kabsch alignment"
     },
     {
       "label": "数据文件名",
-      "label_en": "Data filename",
-      "description": "RMSD数据文件名(可带.dat)",
-      "description_en": "RMSD data filename (optional .dat)",
+      "label_en": "Data Filename",
       "key": "data_filename",
       "valueType": "str",
-      "example_value": "rmsd"
+      "example_value": "rmsd",
+      "description": "RMSD数据文件名（不含.dat后缀）",
+      "description_en": "RMSD data filename (without .dat extension)"
     },
     {
       "label": "图片文件名",
-      "label_en": "Plot filename",
-      "description": "RMSD图片文件名(可带.png)",
-      "description_en": "RMSD plot filename (optional .png)",
+      "label_en": "Plot Filename",
       "key": "plot_filename",
       "valueType": "str",
-      "example_value": "rmsd.png"
-    },
-    {
-      "label": "日志级别",
-      "label_en": "Log level",
-      "description": "INFO/DEBUG/WARNING/ERROR",
-      "description_en": "INFO/DEBUG/WARNING/ERROR",
-      "key": "log_level",
-      "valueType": "str",
-      "example_value": "INFO"
+      "example_value": "rmsd.png",
+      "description": "RMSD图片文件名（可带.png后缀）",
+      "description_en": "RMSD plot filename (optional .png extension)"
     }
   ]
 }
